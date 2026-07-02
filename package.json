@@ -1,0 +1,19 @@
+{
+  "name": "api-datos-panel-vercel",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Panel HTML con API CRUD MongoDB para Vercel",
+  "main": "api/datos.js",
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "build": "echo Build listo",
+    "start": "node api/datos.js",
+    "check": "node --check api/datos.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "mongoose": "^8.3.1"
+  }
+}
