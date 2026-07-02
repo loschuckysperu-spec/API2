@@ -1,5 +1,7 @@
 {
   "version": 2,
+  "installCommand": "npm install --no-audit --no-fund",
+  "buildCommand": "npm run build",
   "functions": {
     "api/datos.js": {
       "maxDuration": 10
@@ -12,7 +14,7 @@
     },
     {
       "source": "/datos/:path*",
-      "destination": "/api/datos"
+      "destination": "/api/datos/:path*"
     },
     {
       "source": "/",

@@ -5,7 +5,7 @@
   "description": "Panel HTML con API CRUD MongoDB para Vercel",
   "main": "api/datos.js",
   "engines": {
-    "node": "24.x"
+    "node": "22.x"
   },
   "scripts": {
     "build": "echo Build listo",
@@ -13,6 +13,7 @@
     "check": "node --check api/datos.js"
   },
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.19.2",
     "mongoose": "^8.3.1"
   }
