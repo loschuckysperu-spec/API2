@@ -2,10 +2,14 @@
 
 const express = require('express');
 const mongoose = require('mongoose');
+const cors = require('cors');
 
 const EMBEDDED_MONGODB_URI = 'mongodb+srv://vortex404exe_db_user:Yy1vCGyt9NJ5VAC7@panel.iohd54i.mongodb.net/GersonDB?appName=PANEL';
 
 const app = express();
+
+app.use(cors());
+
 app.disable('x-powered-by');
 app.use(express.json({ limit: '20kb' }));
 
@@ -108,7 +112,6 @@ function validateId(id) {
   return mongoose.Types.ObjectId.isValid(id);
 }
 
-// Rutas compatibles con Vercel: /datos y /api/datos
 const router = express.Router();
 
 router.get('/', async (_req, res) => {
@@ -127,16 +130,13 @@ router.post('/', async (req, res) => {
     await connectDatabase();
     const datos = validatePayload(req.body);
     const nuevoEnlace = await Enlace.create(datos);
+
     return res.status(201).json({
       mensaje: 'Dato insertado correctamente.',
       enlace: nuevoEnlace
     });
   } catch (error) {
-    if (error.name === 'ValidationError' || error.message?.includes('obligatori') || error.message?.includes('URL') || error.message?.includes('orden') || error.message?.includes('nombre')) {
-      return res.status(400).json({ error: error.message });
-    }
-    console.error('Error al crear enlace:', error);
-    return res.status(500).json({ error: 'No se pudo crear el enlace.' });
+    return res.status(400).json({ error: error.message });
   }
 });
 
@@ -148,19 +148,22 @@ router.put('/:id', async (req, res) => {
 
     await connectDatabase();
     const datos = validatePayload(req.body);
+
     const enlace = await Enlace.findByIdAndUpdate(req.params.id, datos, {
       new: true,
       runValidators: true
     });
 
-    if (!enlace) return res.status(404).json({ error: 'Registro no encontrado.' });
-    return res.status(200).json({ mensaje: 'Registro actualizado.', enlace });
-  } catch (error) {
-    if (error.name === 'ValidationError' || error.message?.includes('obligatori') || error.message?.includes('URL') || error.message?.includes('orden') || error.message?.includes('nombre')) {
-      return res.status(400).json({ error: error.message });
+    if (!enlace) {
+      return res.status(404).json({ error: 'Registro no encontrado.' });
     }
-    console.error('Error al actualizar enlace:', error);
-    return res.status(500).json({ error: 'No se pudo actualizar el enlace.' });
+
+    return res.status(200).json({
+      mensaje: 'Registro actualizado.',
+      enlace
+    });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
   }
 });
 
@@ -173,8 +176,13 @@ router.delete('/:id', async (req, res) => {
     await connectDatabase();
     const enlace = await Enlace.findByIdAndDelete(req.params.id);
 
-    if (!enlace) return res.status(404).json({ error: 'Registro no encontrado.' });
-    return res.status(200).json({ mensaje: 'Registro eliminado.' });
+    if (!enlace) {
+      return res.status(404).json({ error: 'Registro no encontrado.' });
+    }
+
+    return res.status(200).json({
+      mensaje: 'Registro eliminado.'
+    });
   } catch (error) {
     console.error('Error al eliminar enlace:', error);
     return res.status(500).json({ error: 'No se pudo eliminar el enlace.' });
@@ -184,15 +192,16 @@ router.delete('/:id', async (req, res) => {
 app.use('/datos', router);
 app.use('/api/datos', router);
 
-app.use((req, res) => {
-  return res.status(404).json({ error: 'Ruta no encontrada.' });
+app.get('/', (_req, res) => {
+  res.json({
+    ok: true,
+    mensaje: 'API funcionando',
+    rutas: ['/datos', '/api/datos']
+  });
 });
 
-if (require.main === module) {
-  const port = Number(process.env.PORT) || 3000;
-  app.listen(port, () => {
-    console.log(`Servidor disponible en http://localhost:${port}`);
-  });
-}
+app.use((_req, res) => {
+  return res.status(404).json({ error: 'Ruta no encontrada.' });
+});
 
 module.exports = app;
