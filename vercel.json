@@ -1,7 +1,5 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
-  "installCommand": "npm install --no-audit --no-fund",
   "functions": {
     "api/datos.js": {
       "maxDuration": 10
@@ -14,7 +12,11 @@
     },
     {
       "source": "/datos/:path*",
-      "destination": "/api/datos/:path*"
+      "destination": "/api/datos"
+    },
+    {
+      "source": "/",
+      "destination": "/index.html"
     }
   ]
 }
